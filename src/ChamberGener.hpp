@@ -1,4 +1,5 @@
 #pragma once
+#include "Chamber.hpp"
 
 class ChamberGener {
 public:
@@ -7,5 +8,5 @@ public:
 		unsigned int width,
 		unsigned int height,
 		unsigned int seed = 0);
-	void run() const;
+	Chamber run() const;
 };

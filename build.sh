@@ -55,7 +55,7 @@ else
 fi
 echo
 echo "Start compilation..."
-g++ -std=c++11 $CPPS -o dist/app
+g++ -g -std=c++1z $CPPS -o dist/app
 CODE=$?
 if [ $CODE != 0 ]
 then

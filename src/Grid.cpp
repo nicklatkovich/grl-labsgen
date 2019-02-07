@@ -3,15 +3,40 @@
 #include <assert.h>
 
 template <class T>
-Grid<T>::Grid(const unsigned int width, const unsigned int height, const T default_value)
+Grid<T>::Grid()
+	: Grid(0, 0)
+{
+}
+
+template <class T>
+Grid<T>::Grid(const unsigned int width, const unsigned int height)
 	: width(width)
 	, height(height)
 {
 	this->_data = new T*[this->height];
 	for (unsigned int y = 0; y < this->height; y++) {
 		this->_data[y] = new T[this->width];
+	}
+}
+
+template <class T>
+Grid<T>::Grid(const unsigned int width, const unsigned int height, const T default_value)
+	: Grid(width, height)
+{
+	for (unsigned int y = 0; y < this->height; y++) {
 		for (unsigned int x = 0; x < this->width; x++) {
 			this->_data[y][x] = default_value;
+		}
+	}
+}
+
+template <class T>
+Grid<T>::Grid(const Grid<T>& to_copy)
+	: Grid(to_copy.width, to_copy.height)
+{
+	for (unsigned int y = 0; y < this->height; y++) {
+		for (unsigned int x = 0; x < this->width; x++) {
+			this->_data[y][x] = to_copy(x, y);
 		}
 	}
 }
@@ -39,7 +64,13 @@ void Grid<T>::set_borders(const T& value)
 }
 
 template <class T>
-T& Grid<T>::operator[](const UIntPoint& pos)
+T& Grid<T>::operator[](const Point& pos)
+{
+	return (*this)(pos.x, pos.y);
+}
+
+template <class T>
+const T& Grid<T>::operator[](const Point& pos) const
 {
 	return (*this)(pos.x, pos.y);
 }
@@ -60,4 +91,20 @@ const T& Grid<T>::operator()(const unsigned int x, const unsigned int y) const
 	return this->_data[y][x];
 }
 
+template <class T>
+template <class K>
+Grid<K> Grid<T>::map(std::function<K(T)> mapFunction) const
+{
+	Grid<K> result(this->width, this->height);
+	for (unsigned int y = 0; y < this->height; y++) {
+		for (unsigned int x = 0; x < this->width; x++) {
+			Point pos(x, y);
+			result[pos] = mapFunction((*this)[pos]);
+		}
+	}
+	return result;
+}
+
+template class Grid<bool>;
 template class Grid<gl::CELL>;
+template Grid<bool> Grid<gl::CELL>::map<bool>(std::function<bool(gl::CELL)>) const;
