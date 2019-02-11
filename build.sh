@@ -56,6 +56,7 @@ fi
 echo
 echo "Start compilation..."
 g++ -g -std=c++1z $CPPS -o dist/app
+mkdir -p dist/maps
 CODE=$?
 if [ $CODE != 0 ]
 then
