@@ -2,13 +2,12 @@
 #include "Cell.hpp"
 #include <assert.h>
 
-template <class T>
+template<class T>
 Grid<T>::Grid()
 	: Grid(0, 0)
-{
-}
+{}
 
-template <class T>
+template<class T>
 Grid<T>::Grid(const unsigned int width, const unsigned int height)
 	: width(width)
 	, height(height)
@@ -19,7 +18,7 @@ Grid<T>::Grid(const unsigned int width, const unsigned int height)
 	}
 }
 
-template <class T>
+template<class T>
 Grid<T>::Grid(const unsigned int width, const unsigned int height, const T default_value)
 	: Grid(width, height)
 {
@@ -30,7 +29,7 @@ Grid<T>::Grid(const unsigned int width, const unsigned int height, const T defau
 	}
 }
 
-template <class T>
+template<class T>
 Grid<T>::Grid(const Grid<T>& to_copy)
 	: Grid(to_copy.width, to_copy.height)
 {
@@ -41,7 +40,7 @@ Grid<T>::Grid(const Grid<T>& to_copy)
 	}
 }
 
-template <class T>
+template<class T>
 Grid<T>::~Grid()
 {
 	for (unsigned int y = 0; y < this->height; y++) {
@@ -50,7 +49,7 @@ Grid<T>::~Grid()
 	delete this->_data;
 }
 
-template <class T>
+template<class T>
 void Grid<T>::set_borders(const T& value)
 {
 	unsigned int pre_width = this->width - 1;
@@ -63,19 +62,19 @@ void Grid<T>::set_borders(const T& value)
 	}
 }
 
-template <class T>
+template<class T>
 T& Grid<T>::operator[](const Point& pos)
 {
 	return (*this)(pos.x, pos.y);
 }
 
-template <class T>
+template<class T>
 const T& Grid<T>::operator[](const Point& pos) const
 {
 	return (*this)(pos.x, pos.y);
 }
 
-template <class T>
+template<class T>
 T& Grid<T>::operator()(const unsigned int x, const unsigned int y)
 {
 	assert(x < this->width);
@@ -83,7 +82,7 @@ T& Grid<T>::operator()(const unsigned int x, const unsigned int y)
 	return this->_data[y][x];
 }
 
-template <class T>
+template<class T>
 const T& Grid<T>::operator()(const unsigned int x, const unsigned int y) const
 {
 	assert(x < this->width);
@@ -91,8 +90,8 @@ const T& Grid<T>::operator()(const unsigned int x, const unsigned int y) const
 	return this->_data[y][x];
 }
 
-template <class T>
-template <class K>
+template<class T>
+template<class K>
 Grid<K> Grid<T>::map(std::function<K(T)> mapFunction) const
 {
 	Grid<K> result(this->width, this->height);

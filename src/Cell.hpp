@@ -1,7 +1,8 @@
 #pragma once
 
 namespace gl {
-enum CELL {
+enum CELL
+{
 	EMPTY,
 	FLOW,
 	POINT,

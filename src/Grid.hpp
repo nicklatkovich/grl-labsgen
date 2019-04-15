@@ -2,8 +2,9 @@
 #include "Point.hpp"
 #include "functional"
 
-template <class T>
-class Grid {
+template<class T>
+class Grid
+{
 private:
 	T** _data;
 
@@ -19,6 +20,6 @@ public:
 	const T& operator[](const Point& pos) const;
 	T& operator()(const unsigned int x, const unsigned int y);
 	const T& operator()(const unsigned int x, const unsigned int y) const;
-	template <class K>
+	template<class K>
 	Grid<K> map(std::function<K(T)> mapFunction) const;
 };

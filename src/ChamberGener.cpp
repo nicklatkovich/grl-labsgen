@@ -8,17 +8,13 @@
 
 Point DD[4] = { Point(1, 0), Point(0, -1), Point(-1, 0), Point(0, 1) };
 
-ChamberGener::ChamberGener(
-	unsigned int width,
-	unsigned int height,
-	unsigned int seed)
+ChamberGener::ChamberGener(unsigned int width, unsigned int height, unsigned int seed)
 	: width(width)
 	, height(height)
 	, seed(seed)
-{
-}
+{}
 
-template <class T>
+template<class T>
 Point get_random_pos(const Grid<T>& grid)
 {
 	Point result;
@@ -41,10 +37,8 @@ Chamber ChamberGener::run() const
 		for (Point d : DD) {
 			gl::CELL prev_cell = grid[pos];
 			UnorderedArray<unsigned int> possible_steps_counts;
-			for (
-				auto [steps_count, possible_closed_cell_pos] = std::tuple<unsigned int, Point>{ 1u, pos };
-				;
-				steps_count++) {
+			for (auto [steps_count, possible_closed_cell_pos] = std::tuple<unsigned int, Point>{ 1u, pos };;
+				 steps_count++) {
 				possible_closed_cell_pos += d;
 				gl::CELL cell = grid[possible_closed_cell_pos];
 				if (prev_cell != gl::CELL::POINT && (cell == gl::CELL::EMPTY || cell == gl::CELL::CLOSED)) {
@@ -60,10 +54,8 @@ Chamber ChamberGener::run() const
 			}
 			unsigned int steps_count = possible_steps_counts.pop();
 			Point pos_to_change = pos + d;
-			for (
-				unsigned int step_number = 2;
-				step_number < steps_count;
-				step_number++, pos_to_change = pos_to_change + d) {
+			for (unsigned int step_number = 2; step_number < steps_count;
+				 step_number++, pos_to_change = pos_to_change + d) {
 				if (grid[pos_to_change] == gl::CELL::EMPTY) {
 					grid[pos_to_change] = gl::CELL::FLOW;
 				}

@@ -2,14 +2,12 @@
 
 Point::Point()
 	: Point(0, 0)
-{
-}
+{}
 
 Point::Point(const int x, const int y)
 	: x(x)
 	, y(y)
-{
-}
+{}
 
 Point& Point::operator+=(const Point& other)
 {

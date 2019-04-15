@@ -2,7 +2,7 @@
 #include "Point.hpp"
 #include <cstdlib>
 
-template <class T>
+template<class T>
 UnorderedArray<T>::UnorderedArray(const unsigned int min_length)
 	: _min_length(min_length)
 	, _data_length(min_length)
@@ -10,13 +10,13 @@ UnorderedArray<T>::UnorderedArray(const unsigned int min_length)
 	_data = new T[this->_min_length];
 }
 
-template <class T>
+template<class T>
 UnorderedArray<T>::~UnorderedArray()
 {
 	delete this->_data;
 }
 
-template <class T>
+template<class T>
 T& UnorderedArray<T>::push(const T value)
 {
 	if (this->_length == this->_min_length) {
@@ -32,7 +32,7 @@ T& UnorderedArray<T>::push(const T value)
 	this->_length++;
 }
 
-template <class T>
+template<class T>
 T UnorderedArray<T>::pop()
 {
 	unsigned int index = rand() % this->_length;
@@ -51,7 +51,7 @@ T UnorderedArray<T>::pop()
 	return result;
 }
 
-template <class T>
+template<class T>
 const unsigned int UnorderedArray<T>::get_length() const
 {
 	return this->_length;

@@ -1,6 +1,7 @@
 #pragma once
 
-class Point {
+class Point
+{
 public:
 	int x, y;
 	Point();
