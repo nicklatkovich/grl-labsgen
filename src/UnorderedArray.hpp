@@ -14,5 +14,6 @@ public:
 	~UnorderedArray();
 	T& push(const T value);
 	T pop();
+	void clear();
 	const unsigned int get_length() const;
 };

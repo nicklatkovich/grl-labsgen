@@ -9,6 +9,7 @@ private:
 	T** _data;
 
 public:
+	// TODO: make this fields readonly
 	unsigned int width, height;
 	Grid();
 	Grid(const unsigned int width, const unsigned int height);
@@ -16,6 +17,7 @@ public:
 	Grid(const Grid<T>& to_copy);
 	~Grid();
 	void set_borders(const T& value);
+	bool is_on_grid(const Point& pos) const;
 	T& operator[](const Point& pos);
 	const T& operator[](const Point& pos) const;
 	T& operator()(const unsigned int x, const unsigned int y);

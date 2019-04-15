@@ -63,6 +63,12 @@ void Grid<T>::set_borders(const T& value)
 }
 
 template<class T>
+bool Grid<T>::is_on_grid(const Point& pos) const
+{
+	return pos.x >= 0 && pos.x < this->width && pos.y >= 0 && pos.y < this->height;
+}
+
+template<class T>
 T& Grid<T>::operator[](const Point& pos)
 {
 	return (*this)(pos.x, pos.y);
@@ -105,5 +111,6 @@ Grid<K> Grid<T>::map(std::function<K(T)> mapFunction) const
 }
 
 template class Grid<bool>;
+template class Grid<unsigned int>;
 template class Grid<gl::CELL>;
 template Grid<bool> Grid<gl::CELL>::map<bool>(std::function<bool(gl::CELL)>) const;

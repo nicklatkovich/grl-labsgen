@@ -5,7 +5,7 @@
 #include <string>
 #include <time.h>
 
-#define PRINT_MAP true
+#define PRINT_MAP false
 
 void write_uint(const unsigned int value, std::ostream& out)
 {
@@ -17,20 +17,8 @@ void write_uint(const unsigned int value, std::ostream& out)
 	}
 }
 
-int main(int argc, char const* argv[])
+void save_map(const Chamber& chamber, std::ofstream& file)
 {
-	std::setlocale(LC_ALL, "en_US.UTF-8");
-	unsigned int seed = time(0);
-	ChamberGener gener(30, 16, seed);
-	Chamber chamber = gener.run();
-	std::ofstream file;
-	std::string path_to_executable(argv[0]);
-	const std::size_t last_slash_idx = path_to_executable.rfind('/');
-	if (std::string::npos == last_slash_idx) {
-		throw std::runtime_error("unable to get executable directory");
-	}
-	std::string dirname = path_to_executable.substr(0, last_slash_idx);
-	file.open(dirname + std::string("/dist/maps/") + std::to_string(seed) + std::string(".grlmap"));
 	write_uint(chamber.walls_map.width, file);
 	write_uint(chamber.walls_map.height, file);
 	unsigned int pre_height = chamber.walls_map.height - 1;
@@ -52,8 +40,11 @@ int main(int argc, char const* argv[])
 				step = 0;
 				file << fc;
 			}
-			if (Point(x, y) == chamber.start_pos) {
+			Point pos(x, y);
+			if (pos == chamber.start_pos) {
 				c = 0x2592;
+			} else if (pos == chamber.exit_pos) {
+				c = 0x2593;
 			}
 			if (PRINT_MAP) {
 				std::wcout << c << c;
@@ -65,5 +56,24 @@ int main(int argc, char const* argv[])
 	}
 	write_uint(chamber.start_pos.x, file);
 	write_uint(chamber.start_pos.y, file);
+	write_uint(chamber.exit_pos.x, file);
+	write_uint(chamber.exit_pos.y, file);
+}
+
+int main(int argc, char const* argv[])
+{
+	std::setlocale(LC_ALL, "en_US.UTF-8");
+	unsigned int seed = time(0);
+	ChamberGener gener(30, 16, seed);
+	Chamber chamber = gener.run();
+	std::ofstream file;
+	std::string path_to_executable(argv[0]);
+	const std::size_t last_slash_idx = path_to_executable.rfind('/');
+	if (std::string::npos == last_slash_idx) {
+		throw std::runtime_error("unable to get executable directory");
+	}
+	std::string dirname = path_to_executable.substr(0, last_slash_idx);
+	file.open(dirname + std::string("/dist/maps/") + std::to_string(seed) + std::string(".grlmap"));
+	save_map(chamber, file);
 	file.close();
 }

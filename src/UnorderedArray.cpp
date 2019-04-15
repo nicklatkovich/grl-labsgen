@@ -7,7 +7,7 @@ UnorderedArray<T>::UnorderedArray(const unsigned int min_length)
 	: _min_length(min_length)
 	, _data_length(min_length)
 {
-	_data = new T[this->_min_length];
+	this->_data = new T[this->_min_length];
 }
 
 template<class T>
@@ -55,6 +55,15 @@ template<class T>
 const unsigned int UnorderedArray<T>::get_length() const
 {
 	return this->_length;
+}
+
+template<class T>
+void UnorderedArray<T>::clear()
+{
+	delete this->_data;
+	this->_data_length = this->_min_length;
+	this->_length = 0;
+	this->_data = new T[this->_min_length];
 }
 
 template class UnorderedArray<unsigned int>;
