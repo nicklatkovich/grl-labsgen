@@ -10,3 +10,4 @@ add_executable(
 	src/Point.cpp
 	src/UnorderedArray.cpp
 )
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/dist/maps)

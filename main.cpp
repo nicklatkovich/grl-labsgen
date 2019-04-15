@@ -5,6 +5,8 @@
 #include <string>
 #include <time.h>
 
+#define PRINT_MAP true
+
 void write_uint(const unsigned int value, std::ostream& out)
 {
 	unsigned int non_const_value = value;
@@ -22,7 +24,13 @@ int main(int argc, char const* argv[])
 	ChamberGener gener(30, 16, seed);
 	Chamber chamber = gener.run();
 	std::ofstream file;
-	file.open(std::string("dist/maps/") + std::to_string(seed) + std::string(".grlmap"));
+	std::string path_to_executable(argv[0]);
+	const std::size_t last_slash_idx = path_to_executable.rfind('/');
+	if (std::string::npos == last_slash_idx) {
+		throw std::runtime_error("unable to get executable directory");
+	}
+	std::string dirname = path_to_executable.substr(0, last_slash_idx);
+	file.open(dirname + std::string("/dist/maps/") + std::to_string(seed) + std::string(".grlmap"));
 	write_uint(chamber.walls_map.width, file);
 	write_uint(chamber.walls_map.height, file);
 	unsigned int pre_height = chamber.walls_map.height - 1;
@@ -47,9 +55,13 @@ int main(int argc, char const* argv[])
 			if (Point(x, y) == chamber.start_pos) {
 				c = 0x2592;
 			}
-			std::wcout << c << c;
+			if (PRINT_MAP) {
+				std::wcout << c << c;
+			}
 		}
-		std::wcout << std::endl;
+		if (PRINT_MAP) {
+			std::wcout << std::endl;
+		}
 	}
 	write_uint(chamber.start_pos.x, file);
 	write_uint(chamber.start_pos.y, file);
