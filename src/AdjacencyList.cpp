@@ -2,7 +2,7 @@
 
 const bool AdjacencyList::add_edge(const Point& from, const Point& to)
 {
-	std::unordered_set<Point>& destinations = _map[from];
+	std::set<Point>& destinations = _map[from];
 	if (destinations.find(to) != destinations.end()) {
 		return false;
 	}
@@ -28,7 +28,12 @@ const bool AdjacencyList::has_outs(const Point& from) const
 	return _map.at(from).size() != 0;
 }
 
-std::unordered_map<Point, std::unordered_set<Point>> AdjacencyList::map() const
+std::set<Point> AdjacencyList::outs(const Point& from) const
+{
+	return _map.at(from);
+}
+
+std::unordered_map<Point, std::set<Point>> AdjacencyList::map() const
 {
 	return _map;
 }

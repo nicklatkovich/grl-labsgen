@@ -1,5 +1,6 @@
 #include "src/ChamberGener.hpp"
 #include "src/representers.hpp"
+#include <algorithm>
 #include <clocale>
 #include <fstream>
 #include <iostream>
@@ -22,7 +23,6 @@ void write_uint(const unsigned int value, std::ostream& out)
 void print_map(const Chamber& chamber, std::wostream& out)
 {
 	using namespace grlrepresenters;
-	std::unordered_set<Point> key_poses(chamber.key_poses.begin(), chamber.key_poses.end());
 	out << "  ";
 	for (unsigned int x = 0; x < chamber.width(); x++) {
 		out << ' ' << coord2char(x);
@@ -32,14 +32,22 @@ void print_map(const Chamber& chamber, std::wostream& out)
 		out << ' ' << coord2char(y) << ' ';
 		for (unsigned int x = 0; x < chamber.width(); x++) {
 			Point pos(x, y);
-			wchar_t c = chamber.is_wall(pos) ? 0x2588 : (key_poses.find(pos) == key_poses.end() ? 0x2591 : ' ');
-			out << c << c;
+			auto it = std::find(chamber.way.begin(), chamber.way.end(), pos);
+			if (chamber.is_wall(pos)) {
+				wchar_t c = 0x2588;
+				out << c << c;
+			} else if (it == chamber.way.end()) {
+				wchar_t c = ' ';
+				out << c << c;
+			} else {
+				out << grlrepresenters::coord2char(pos.x) << grlrepresenters::coord2char(pos.y);
+			}
 		}
 		out << std::endl;
 	}
 	out << ' ';
-	for (auto it = chamber.key_poses.begin(); it != chamber.key_poses.end(); ++it) {
-		if (it != chamber.key_poses.begin()) {
+	for (auto it = chamber.way.begin(); it != chamber.way.end(); ++it) {
+		if (it != chamber.way.begin()) {
 			out << " => ";
 		}
 		out << coord2char(it->x) << coord2char(it->y);
@@ -67,14 +75,12 @@ void save_map(const Chamber& chamber, std::ofstream& file)
 	}
 	write_uint(chamber.start_pos.x, file);
 	write_uint(chamber.start_pos.y, file);
-	write_uint(chamber.exit_pos.x, file);
-	write_uint(chamber.exit_pos.y, file);
 }
 
 int main(int argc, char const* argv[])
 {
 	std::setlocale(LC_ALL, "en_US.UTF-8");
-	unsigned int seed = 1; //time(0);
+	unsigned int seed = 1; // time(0);
 	ChamberGener gener(16, 8, seed);
 	Chamber chamber = gener.run();
 	std::ofstream file;

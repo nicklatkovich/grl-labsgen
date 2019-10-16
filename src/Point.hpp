@@ -10,6 +10,8 @@ public:
 	Point& operator+=(const Point& other);
 	Point operator+(const Point& other) const;
 	const bool operator==(const Point& other) const;
+	const bool operator!=(const Point& other) const;
+	const bool operator<(const Point& other) const;
 };
 
 template<>

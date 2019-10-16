@@ -128,6 +128,75 @@ AdjacencyList generate_adjacency_list(const Grid<bool>& walls_map, const Point& 
 	return result;
 }
 
+std::list<Point> get_longest_way(const AdjacencyList& adjacency_list, const Point& start_pos)
+{
+	std::list<Point> result({ start_pos });
+	unsigned int possible_results_count = 1;
+	std::list<Point> temp({ start_pos });
+	unsigned int skip = 0;
+	while (true) {
+		auto outs = adjacency_list.outs(*std::prev(temp.end()));
+		bool updated = false;
+		for (auto it = std::next(outs.begin(), skip); it != outs.end(); ++it) {
+			auto next_pos = *it;
+			bool possible = true;
+			for (auto it = temp.begin(); it != std::prev(temp.end()); ++it) {
+				if (*it != *std::prev(temp.end())) {
+					continue;
+				}
+				if (*std::next(it) == next_pos) {
+					possible = false;
+					break;
+				}
+			}
+			if (!possible) {
+				continue;
+			}
+			temp.push_back(next_pos);
+			bool possible_as_result = true;
+			for (auto it = temp.begin(); it != std::prev(temp.end()); ++it) {
+				if (*it == next_pos) {
+					possible_as_result = false;
+					break;
+				}
+			}
+			if (possible_as_result) {
+				if (result.size() < temp.size()) {
+					for (auto a : temp) {
+						std::wcout << ' ' << grlrepresenters::coord2char(a.x) << grlrepresenters::coord2char(a.y);
+					}
+					std::wcout << std::endl;
+					result = temp;
+					possible_results_count = 1;
+				} else if (result.size() == temp.size()) {
+					possible_results_count++;
+					for (auto a : temp) {
+						std::wcout << ' ' << grlrepresenters::coord2char(a.x) << grlrepresenters::coord2char(a.y);
+					}
+					std::wcout << std::endl;
+					if (rand() % possible_results_count == 0) {
+						result = temp;
+					}
+				}
+			}
+			updated = true;
+			break;
+		}
+		if (updated) {
+			skip = 0;
+			continue;
+		}
+		if (temp.size() == 1) {
+			break;
+		}
+		auto prev_last_pos = *std::prev(temp.end());
+		temp.pop_back();
+		auto prev_outs = adjacency_list.outs(*std::prev(temp.end()));
+		skip = std::distance(prev_outs.begin(), std::next(prev_outs.find(prev_last_pos)));
+	}
+	return result;
+}
+
 Chamber ChamberGener::run() const
 {
 	srand(this->seed);
@@ -159,5 +228,5 @@ Chamber ChamberGener::run() const
 			std::wcout << std::endl;
 		}
 	}
-	return Chamber(walls_map, start_pos, get_farthest_poses(walls_map, start_pos).pop());
+	return Chamber(walls_map, start_pos, get_longest_way(adjacency_list, start_pos));
 }
