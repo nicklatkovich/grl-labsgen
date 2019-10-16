@@ -9,5 +9,7 @@ add_executable(
 	src/Grid.cpp
 	src/Point.cpp
 	src/UnorderedArray.cpp
+	src/AdjacencyList.cpp
+	src/representers.cpp
 )
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/dist/maps)

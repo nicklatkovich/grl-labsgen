@@ -16,4 +16,5 @@ public:
 	T pop();
 	void clear();
 	const unsigned int get_length() const;
+	const bool empty() const;
 };

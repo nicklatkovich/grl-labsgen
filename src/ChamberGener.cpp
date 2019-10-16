@@ -1,9 +1,12 @@
 #include "ChamberGener.hpp"
+#include "AdjacencyList.hpp"
 #include "Cell.hpp"
 #include "Grid.hpp"
 #include "Point.hpp"
 #include "UnorderedArray.hpp"
+#include "representers.hpp"
 #include <cstdlib>
+#include <iostream>
 #include <queue>
 #include <tuple>
 
@@ -59,22 +62,36 @@ void process_point(UnorderedArray<Point>& points, Grid<gl::CELL>& grid)
 	}
 }
 
-Point get_exit_pos(const Grid<bool>& walls_map, const Point& start_pos)
+Point move(const Grid<bool>& walls_map, const Point& from, const Point& d)
+{
+	Point result = from;
+	Point next_pos = from + d;
+	while (!walls_map[next_pos]) {
+		result = next_pos;
+		next_pos += d;
+	}
+	return result;
+}
+
+UnorderedArray<Point> get_farthest_poses(const Grid<bool>& walls_map, const Point& start_pos)
 {
 	Grid<unsigned int> steps(walls_map.width, walls_map.height, UINT32_MAX);
 	steps[start_pos] = 0;
 	std::queue<Point> q;
 	q.push(start_pos);
-	UnorderedArray<Point> farthest_positions;
-	farthest_positions.push(start_pos);
+	UnorderedArray<Point> result;
+	result.push(start_pos);
 	unsigned int farthes_steps_count = 0;
 	while (q.size() > 0) {
 		Point pos = q.front();
 		q.pop();
 		unsigned int new_step_index = steps[pos] + 1;
 		for (Point d : DD) {
-			Point new_pos = pos + d;
-			if (!steps.is_on_grid(new_pos) || walls_map[new_pos] || steps[new_pos] <= new_step_index) {
+			Point new_pos = move(walls_map, pos, d);
+			if (new_pos == pos) {
+				continue;
+			}
+			if (steps[new_pos] <= new_step_index) {
 				continue;
 			}
 			steps[new_pos] = new_step_index;
@@ -83,12 +100,32 @@ Point get_exit_pos(const Grid<bool>& walls_map, const Point& start_pos)
 				continue;
 			}
 			if (farthes_steps_count < new_step_index) {
-				farthest_positions.clear();
+				farthes_steps_count = new_step_index;
+				result.clear();
 			}
-			farthest_positions.push(new_pos);
+			result.push(new_pos);
 		}
 	}
-	return farthest_positions.pop();
+	return result;
+}
+
+AdjacencyList generate_adjacency_list(const Grid<bool>& walls_map, const Point& start_pos)
+{
+	UnorderedArray<Point> points_to_process;
+	AdjacencyList result;
+	points_to_process.push(start_pos);
+	while (!points_to_process.empty()) {
+		Point pos = points_to_process.pop();
+		auto farthest_poses = get_farthest_poses(walls_map, pos);
+		while (!farthest_poses.empty()) {
+			auto f_pos = farthest_poses.pop();
+			result.add_edge(pos, f_pos);
+			if (!result.has_outs(f_pos)) {
+				points_to_process.push(f_pos);
+			}
+		}
+	}
+	return result;
 }
 
 Chamber ChamberGener::run() const
@@ -107,5 +144,20 @@ Chamber ChamberGener::run() const
 		return cell == gl::CELL::CLOSED || cell == gl::CELL::EMPTY;
 	};
 	Grid<bool> walls_map = grid.map(map_function);
-	return Chamber(walls_map, start_pos, get_exit_pos(walls_map, start_pos));
+	auto adjacency_list = generate_adjacency_list(walls_map, start_pos);
+	{
+		using namespace grlrepresenters;
+		std::wcout << coord2char(start_pos.x) << coord2char(start_pos.y) << std::endl;
+		for (auto adjacency_pair : adjacency_list.map()) {
+			std::wcout << coord2char(adjacency_pair.first.x) << coord2char(adjacency_pair.first.y) << " => ";
+			for (auto it = adjacency_pair.second.begin(); it != adjacency_pair.second.end(); ++it) {
+				if (it != adjacency_pair.second.begin()) {
+					std::wcout << ',';
+				}
+				std::wcout << coord2char(it->x) << coord2char(it->y);
+			}
+			std::wcout << std::endl;
+		}
+	}
+	return Chamber(walls_map, start_pos, get_farthest_poses(walls_map, start_pos).pop());
 }

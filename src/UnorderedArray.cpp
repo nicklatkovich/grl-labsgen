@@ -66,5 +66,11 @@ void UnorderedArray<T>::clear()
 	this->_data = new T[this->_min_length];
 }
 
+template<class T>
+const bool UnorderedArray<T>::empty() const
+{
+	return get_length() == 0;
+}
+
 template class UnorderedArray<unsigned int>;
 template class UnorderedArray<Point>;

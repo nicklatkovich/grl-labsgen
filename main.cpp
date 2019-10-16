@@ -1,9 +1,11 @@
 #include "src/ChamberGener.hpp"
+#include "src/representers.hpp"
 #include <clocale>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <time.h>
+#include <unordered_set>
 
 #define PRINT_MAP true
 
@@ -17,19 +19,10 @@ void write_uint(const unsigned int value, std::ostream& out)
 	}
 }
 
-const char coord2char(const unsigned int coord)
-{
-	if (coord < 10) {
-		return '0' + coord;
-	}
-	if (coord < 'Z' - 'A' + 11) {
-		return 'A' + coord - 10;
-	}
-	throw std::runtime_error("unable to present coord");
-}
-
 void print_map(const Chamber& chamber, std::wostream& out)
 {
+	using namespace grlrepresenters;
+	std::unordered_set<Point> key_poses(chamber.key_poses.begin(), chamber.key_poses.end());
 	out << "  ";
 	for (unsigned int x = 0; x < chamber.width(); x++) {
 		out << ' ' << coord2char(x);
@@ -38,11 +31,20 @@ void print_map(const Chamber& chamber, std::wostream& out)
 	for (unsigned int y = 0; y < chamber.height(); y++) {
 		out << ' ' << coord2char(y) << ' ';
 		for (unsigned int x = 0; x < chamber.width(); x++) {
-			wchar_t c = chamber.is_wall(Point(x, y)) ? 0x2588 : ' ';
+			Point pos(x, y);
+			wchar_t c = chamber.is_wall(pos) ? 0x2588 : (key_poses.find(pos) == key_poses.end() ? 0x2591 : ' ');
 			out << c << c;
 		}
 		out << std::endl;
 	}
+	out << ' ';
+	for (auto it = chamber.key_poses.begin(); it != chamber.key_poses.end(); ++it) {
+		if (it != chamber.key_poses.begin()) {
+			out << " => ";
+		}
+		out << coord2char(it->x) << coord2char(it->y);
+	}
+	out << std::endl;
 }
 
 void save_map(const Chamber& chamber, std::ofstream& file)
@@ -72,8 +74,8 @@ void save_map(const Chamber& chamber, std::ofstream& file)
 int main(int argc, char const* argv[])
 {
 	std::setlocale(LC_ALL, "en_US.UTF-8");
-	unsigned int seed = time(0);
-	ChamberGener gener(30, 16, seed);
+	unsigned int seed = 1; //time(0);
+	ChamberGener gener(16, 8, seed);
 	Chamber chamber = gener.run();
 	std::ofstream file;
 	std::string path_to_executable(argv[0]);

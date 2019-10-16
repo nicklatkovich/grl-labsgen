@@ -16,7 +16,7 @@ Point& Point::operator+=(const Point& other)
 	return *this;
 }
 
-Point Point::operator+(const Point& other)
+Point Point::operator+(const Point& other) const
 {
 	return Point(this->x + other.x, this->y + other.y);
 }
@@ -24,4 +24,9 @@ Point Point::operator+(const Point& other)
 const bool Point::operator==(const Point& other) const
 {
 	return this->x == other.x && this->y == other.y;
+}
+
+size_t std::hash<Point>::operator()(const Point& obj) const
+{
+	return hash<unsigned int>()(obj.x) ^ (hash<unsigned int>()(obj.y) + 0x9e3779b9);
 }
