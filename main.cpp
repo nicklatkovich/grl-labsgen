@@ -5,7 +5,7 @@
 #include <string>
 #include <time.h>
 
-#define PRINT_MAP false
+#define PRINT_MAP true
 
 void write_uint(const unsigned int value, std::ostream& out)
 {
@@ -14,6 +14,34 @@ void write_uint(const unsigned int value, std::ostream& out)
 	for (size_t i = 0; i < sizeof(unsigned int); i++) {
 		out << *ptr;
 		ptr++;
+	}
+}
+
+const char coord2char(const unsigned int coord)
+{
+	if (coord < 10) {
+		return '0' + coord;
+	}
+	if (coord < 'Z' - 'A' + 11) {
+		return 'A' + coord - 10;
+	}
+	throw std::runtime_error("unable to present coord");
+}
+
+void print_map(const Chamber& chamber, std::wostream& out)
+{
+	out << "  ";
+	for (unsigned int x = 0; x < chamber.width(); x++) {
+		out << ' ' << coord2char(x);
+	}
+	out << std::endl;
+	for (unsigned int y = 0; y < chamber.height(); y++) {
+		out << ' ' << coord2char(y) << ' ';
+		for (unsigned int x = 0; x < chamber.width(); x++) {
+			wchar_t c = chamber.is_wall(Point(x, y)) ? 0x2588 : ' ';
+			out << c << c;
+		}
+		out << std::endl;
 	}
 }
 
@@ -28,30 +56,11 @@ void save_map(const Chamber& chamber, std::ofstream& file)
 	for (unsigned int y = 0; y < chamber.walls_map.height; y++) {
 		for (unsigned int x = 0; x < chamber.walls_map.width; x++) {
 			step++;
-			wchar_t c;
-			if (chamber.is_wall(Point(x, y))) {
-				c = 0x2588;
-				fc = (fc << 1) + 0;
-			} else {
-				c = ' ';
-				fc = (fc << 1) + 1;
-			}
+			fc = (fc << 1) + (chamber.is_wall(Point(x, y)) ? 0 : 1);
 			if (step == 8 || (y == pre_height) && (x == pre_width)) {
 				step = 0;
 				file << fc;
 			}
-			Point pos(x, y);
-			if (pos == chamber.start_pos) {
-				c = 0x2592;
-			} else if (pos == chamber.exit_pos) {
-				c = 0x2593;
-			}
-			if (PRINT_MAP) {
-				std::wcout << c << c;
-			}
-		}
-		if (PRINT_MAP) {
-			std::wcout << std::endl;
 		}
 	}
 	write_uint(chamber.start_pos.x, file);
@@ -75,5 +84,8 @@ int main(int argc, char const* argv[])
 	std::string dirname = path_to_executable.substr(0, last_slash_idx);
 	file.open(dirname + std::string("/dist/maps/") + std::to_string(seed) + std::string(".grlmap"));
 	save_map(chamber, file);
+	if (PRINT_MAP) {
+		print_map(chamber, std::wcout);
+	}
 	file.close();
 }
