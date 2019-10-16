@@ -11,10 +11,12 @@ private:
 
 public:
 	UnorderedArray(const unsigned int min_length = 32);
+	UnorderedArray(const UnorderedArray<T>& other);
 	~UnorderedArray();
 	T& push(const T value);
 	T pop();
 	void clear();
 	const unsigned int get_length() const;
 	const bool empty() const;
+	UnorderedArray<T>& operator=(const UnorderedArray<T>& other);
 };

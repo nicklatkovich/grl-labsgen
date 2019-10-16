@@ -9,6 +9,10 @@ Point::Point(const int x, const int y)
 	, y(y)
 {}
 
+Point::Point(const Point& other)
+	: Point(other.x, other.y)
+{}
+
 Point& Point::operator+=(const Point& other)
 {
 	this->x += other.x;

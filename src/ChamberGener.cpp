@@ -197,6 +197,92 @@ std::list<Point> get_longest_way(const AdjacencyList& adjacency_list, const Poin
 	return result;
 }
 
+void print_full_solution(const Grid<bool>& walls_map, const std::list<Point>& longest_way)
+{
+	Grid<bool> total_used(walls_map.width, walls_map.height, false);
+	for (auto it = longest_way.begin(), next_it = std::next(it); next_it != longest_way.end(); it = next_it++) {
+		Grid<unsigned int> steps(walls_map.width, walls_map.height, UINT32_MAX);
+		steps[*it] = 0;
+		UnorderedArray<Point> q1;
+		UnorderedArray<Point> q2;
+		q2.push(*it);
+		while (true) {
+			if (q1.get_length() == 0) {
+				if (q2.get_length() == 0) {
+					break;
+				}
+				q1 = q2;
+				q2.clear();
+			}
+			Point pos = q1.pop();
+			unsigned int next_step_index = steps[pos] + 1;
+			for (auto d : DD) {
+				Point to = move(walls_map, pos, d);
+				if (steps[to] > next_step_index) {
+					steps[to] = next_step_index;
+					q2.push(to);
+				}
+			}
+		}
+		Point pos_it = *next_it;
+		Grid<bool> used(walls_map.width, walls_map.height, false);
+		used[pos_it] = true;
+		while (pos_it != *it) {
+			Point rand_back_way_point;
+			unsigned int back_way_points_count = 0;
+			Point back_dir;
+			for (auto d : DD) {
+				for (auto back_it = pos_it + d; !walls_map[back_it]; back_it += d) {
+					if (steps[back_it] == steps[pos_it] - 1) {
+						if (back_way_points_count == 0 || rand() % (back_way_points_count + 1) == 0) {
+							rand_back_way_point = back_it;
+							back_dir = d;
+						}
+						back_way_points_count++;
+					}
+				}
+			}
+			while (pos_it != rand_back_way_point) {
+				pos_it += back_dir;
+				used[pos_it] = true;
+			}
+		}
+		{
+			auto& out = std::wcout;
+			using namespace grlrepresenters;
+			out << "  ";
+			for (unsigned int x = 0; x < walls_map.width; x++) {
+				out << ' ' << coord2char(x);
+			}
+			out << std::endl;
+			for (unsigned int y = 0; y < walls_map.height; y++) {
+				out << ' ' << coord2char(y) << ' ';
+				for (unsigned int x = 0; x < walls_map.width; x++) {
+					Point pos(x, y);
+					if (walls_map[pos]) {
+						wchar_t c = 0x2588;
+						out << c << c;
+					} else if (*it == pos || *next_it == pos) {
+						out << grlrepresenters::coord2char(pos.x) << grlrepresenters::coord2char(pos.y);
+					} else {
+						wchar_t c = used[pos] ? ' ' : (total_used[pos] ? 0x2591 : 0x2592);
+						out << c << c;
+					}
+				}
+				out << std::endl;
+			}
+		}
+		for (unsigned int x = 0; x < walls_map.width; x++) {
+			for (unsigned int y = 0; y < walls_map.height; y++) {
+				Point pos(x, y);
+				if (used[pos]) {
+					total_used[pos] = true;
+				}
+			}
+		}
+	}
+}
+
 Chamber ChamberGener::run() const
 {
 	srand(this->seed);
@@ -228,5 +314,7 @@ Chamber ChamberGener::run() const
 			std::wcout << std::endl;
 		}
 	}
-	return Chamber(walls_map, start_pos, get_longest_way(adjacency_list, start_pos));
+	auto longest_way = get_longest_way(adjacency_list, start_pos);
+	print_full_solution(walls_map, longest_way);
+	return Chamber(walls_map, start_pos, longest_way);
 }

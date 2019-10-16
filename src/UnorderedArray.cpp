@@ -11,6 +11,31 @@ UnorderedArray<T>::UnorderedArray(const unsigned int min_length)
 }
 
 template<class T>
+UnorderedArray<T>::UnorderedArray(const UnorderedArray<T>& other)
+	: _min_length(other._min_length)
+	, _data_length(other._data_length)
+	, _data(new T[this->_data_length])
+{
+	this->_length = other._length;
+	for (unsigned int i = 0; i < other._length; i++) {
+		this->_data[i] = other._data[i];
+	}
+}
+
+template<class T>
+UnorderedArray<T>& UnorderedArray<T>::operator=(const UnorderedArray& other)
+{
+	this->~UnorderedArray();
+	this->_min_length = other._min_length;
+	this->_data_length = other._data_length;
+	this->_length = other._length;
+	this->_data = new T[this->_data_length];
+	for (unsigned int i = 0; i < other._length; i++) {
+		this->_data[i] = other._data[i];
+	}
+}
+
+template<class T>
 UnorderedArray<T>::~UnorderedArray()
 {
 	delete this->_data;
